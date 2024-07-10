@@ -21,7 +21,7 @@ app.use(cors(corsOptions))
 
 
 // Express Config:
-// app.use(express.static('public'))
+app.use(express.static('public'))
 app.use(cookieParser())
 app.use(express.json())
 
@@ -31,12 +31,14 @@ app.use(express.json())
 app.get('/api/toy', (req, res) => {
     console.log('get list')
     const filterBy = {
-        name: req.query.name || '',
-        price: +req.query.price || 0,
-        inStock: req.query.inStock || 'All',
-        labels: req.query.labels || [],
-        sort: {},
+        name: req.query.filterBy.name || '',
+        price: +req.query.filterBy.price || 0,
+        inStock: req.query.filterBy.inStock || '',
+        labels: req.query.filterBy.labels || [],
+        sort: req.query.filterBy.sort || {},
     }
+    console.log(req.query)
+    console.log(filterBy)
     toyService.query(filterBy)
         .then((toys) => {
             res.send(toys)
@@ -82,7 +84,6 @@ app.post('/api/toy', (req, res) => {
 
 // Toy UPDATE
 app.put('/api/toy', (req, res) => {
-    console.log(req.body)
     const toy = {
         _id: req.body._id,
         name: req.body.name,

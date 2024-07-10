@@ -21,13 +21,9 @@ function query(filterBy = {}) {
     if (filterBy.price) {
         toysToReturn = toysToReturn.filter(toy => toy.price >= filterBy.price)
     }
-
-    if (filterBy.inStock !== 'All') {
-        toysToReturn = toysToReturn.filter(toy => {
-            Boolean(filterBy.inStock).valueOf() === toy.inStock
-        })
+    if (filterBy.inStock) {
+        toysToReturn = toysToReturn.filter(toy => toy.inStock === JSON.parse(filterBy.inStock))
     }
-
     if (filterBy.labels) {
         const labelsToFilter = filterBy.labels
         toysToReturn = toysToReturn.filter(toy =>
@@ -35,15 +31,16 @@ function query(filterBy = {}) {
         )
     }
 
-    if (filterBy.sort) {
-        if (filterBy.sort === 'name') {
-            toysToReturn = toysToReturn.sort((a, b) => a.name.localeCompare(b.name));
-        } else if (filterBy.sort === 'price') {
-            toysToReturn = toysToReturn.sort((a, b) => a.price - b.price);
-        } else if (filterBy.sort === 'createdAt') {
-            toysToReturn = toysToReturn.sort((a, b) => a.createdAt - b.createdAt);
-        }
-    }
+    if (filterBy.sort.type) {
+        toysToReturn.sort((toy1, toy2) => {
+          const sortDirection = +filterBy.sort.desc
+          if (filterBy.sort.type === 'name') {
+            return toy1.name.localeCompare(toy2.name) * sortDirection
+          } else if (filterBy.sort.type === 'price' || filterBy.sort.type === 'createdAt') {
+            return (toy1[filterBy.sort.type] - toy2[filterBy.sort.type]) * sortDirection
+          }
+        })
+      }
     return Promise.resolve(toysToReturn)
 }
 
@@ -63,9 +60,9 @@ function remove(toyId) {
 function save(toy) {
     if (toy._id) {
         const toyToUpdate = toys.find(currToy => currToy._id === toy._id)
-        toyToUpdate.vendor = toy.vendor
-        toyToUpdate.speed = toy.speed
+        toyToUpdate.name = toy.name
         toyToUpdate.price = toy.price
+        toyToUpdate.inStock= toy.inStock
         toy = toyToUpdate
     } else {
         toy._id = utilService.makeId()
