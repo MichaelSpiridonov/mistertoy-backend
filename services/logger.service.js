@@ -1,7 +1,7 @@
 import fs from 'fs'
 import {utilService} from './util.service.js'
 
-export const loggerService = {
+export const logger = {
     debug(...args) {
         doLog('DEBUG', ...args)
     },

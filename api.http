@@ -1,0 +1,37 @@
+
+### vars
+
+@baseUrl = http://localhost:3030/api/
+
+### login
+
+# @name login
+post {{baseUrl}}auth/login
+Content-Type: application/json
+
+{
+    "username": "bob",
+    "password": "bob"
+}
+
+### addCar
+
+# @name addCar
+post {{baseUrl}}car
+Set-Cookie: {{login.response.headers.Set-Cookie}}
+Content-Type: application/json
+
+{
+    "vendor": "subali",
+    "speed": 200
+}
+
+# @name updateCar
+put {{baseUrl}}car/
+Set-Cookie: {{login.response.headers.Set-Cookie}}
+Content-Type: application/json
+
+{
+    "vendor": "subali",
+    "speed": 300
+}

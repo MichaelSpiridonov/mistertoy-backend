@@ -66,7 +66,7 @@ function save(toy) {
         toy = toyToUpdate
     } else {
         toy._id = utilService.makeId()
-        toys.push(toy)
+        toys.unshift(toy)
     }
     
     return _saveToysToFile().then(() => toy)
