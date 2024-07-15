@@ -16,28 +16,10 @@ export const toyService = {
 
 async function query(filterBy = {}) {
 	try {
-		const criteria = {}
-        const projection = {}
-        const sort = {}
-    // if (filterBy.name) {
-    //     const regExp = new RegExp(filterBy.name, 'i')
-    //     criteria.name = { $regex: regExp }
-    // }
-    // if (filterBy.price) {
-    //     criteria.price = { $gt: filterBy.price }
-    // }
-    // if (filterBy.inStock) {
-    //     criteria.inStock = { $eq: filterBy.inStock}
-    // }
-    // if (filterBy.labels) {
-    //     criteria.labels = { $in: filterBy.labels }
-    // }
-
-    // if (filterBy.sort.type) {
-    //     sort = { ...filterBy }
-    // }
+		const criteria = _buildCriteria(filterBy)
+		const sortBy = _buildSort(filterBy.sort)
 		const collection = await dbService.getCollection('toy')
-		var toys = await collection.find(criteria).toArray()
+		var toys = await collection.find(criteria).sort(sortBy).toArray()
 		return toys
 	} catch (err) {
 		logger.error('cannot find toys', err)
@@ -87,10 +69,11 @@ async function update(toy) {
             inStock: toy.inStock
 		}
 		const collection = await dbService.getCollection('toy')
-		await collection.updateOne({ _id: ObjectId.createFromHexString(toy._id) }, { $set: toyToSave })
+		await collection.updateOne({ _id: ObjectId.createFromHexString(toy._id) },
+		{ $set: toyToSave })
 		return toy
 	} catch (err) {
-		logger.error(`cannot update toy ${toyId}`, err)
+		logger.error(`cannot update toy ${toy._id}`, err)
 		throw err
 	}
 }
@@ -119,4 +102,30 @@ async function removeToyMsg(toyId, msgId) {
 	}
 }
 
+function _buildSort(sortBy) {
+	const { type, desc } = sortBy
+	var sort = {}
+	if(type) {
+	 	sort = { [type]: +desc }
+	}
+	return sort
+}
+
+function _buildCriteria(filterBy) {
+	const { name, price, inStock, labels} = filterBy
+	const criteria = {}
+	if (name) {
+        criteria.name = { $regex: name, $options: 'i' }
+    }
+    if (price) {
+        criteria.price = { $gt: price }
+    }
+    if (inStock) {
+        criteria.inStock = { $eq: JSON.parse(inStock)}
+    }
+    if (labels) {
+        criteria.labels = { $in: labels }
+    }
+	return criteria
+  }
 
